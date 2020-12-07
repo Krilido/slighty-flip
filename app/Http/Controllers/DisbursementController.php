@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Model\Disbursement;
+use App\API\FlipApi;
+use Validator;
+use Log;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DisbursementController extends Controller
 {
@@ -38,7 +43,57 @@ class DisbursementController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules = [
+            'amount' => 'required',
+            'bank_code' => 'required',
+            'account_number' => 'required',
+        ];
+        $msg = [
+            'required' => ':attribute tidak boleh kosong',
+        ];
+        $validator = Validator::make($request->all(), $rules,$msg);
+        if (!$validator->passes()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+        try {
+            DB::beginTransaction();
+            $disburs                    = new Disbursement;
+            $disburs->amount            = $request->amount;
+            $disburs->bank_code         = $request->bank_code;
+            $disburs->account_number    = $request->account_number;
+            $disburs->remark            = $request->remark;
+            $disburs->status            = Disbursement::INIT;
+            $disburs->created_at        = Carbon::now();
+            $disburs->save();
+
+            if ($disburs) {
+                DB::commit();
+                try {
+                    $return = FlipApi::createRecord($disburs);
+                    $return = json_decode($return,true);
+                    $disburs->id_api = $return["id"];
+                    $disburs->status = $return["status"];
+                    $disburs->timestamp = $return["timestamp"];
+                    $disburs->beneficiary_name = $return["beneficiary_name"];
+                    $disburs->receipt = $return["receipt"];
+                    $disburs->time_served = $return["time_served"];
+                    $disburs->fee = $return["fee"];
+                    $disburs->save();
+                    
+                } catch (\Throwable $th) {
+                    dd($return,$th);
+                    Log::info($th);
+                }
+                return redirect()->route('disbursement')->with('create_success',true);
+            } else{
+                return redirect()->route('disbursement')->with('create_failed',true)->withInput();
+            }
+
+        } catch (\Throwable $th) {
+            Log::info($th);dd($th);
+            DB::rollback();
+            return redirect()->route('disbursement')->with('create_failed',true)->withInput();
+        }
     }
 
     /**

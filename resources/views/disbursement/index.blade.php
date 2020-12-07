@@ -42,6 +42,7 @@ Dashboard Admin
 													<th>Bank Code</th>
                                                     <th>Account Number</th>
                                                     <th>Status</th>
+                                                    <th>Action</th>
 												</tr>
 											</thead>
 											<tbody>   
@@ -58,14 +59,17 @@ Dashboard Admin
 														@if ($data->status == \App\Model\Disbursement::SUCCESS)	
 														<div class="badge badge-success">SUCCESS</div>
 														@endif
-														@if ($data->status == \App\Models\Disbursement::PENDING)	
-														<div class="badge badge-info">PENDING</div>
+														@if ($data->status == \App\Model\Disbursement::PENDING)	
+														<div class="badge badge-primary">PENDING</div>
                                                         @endif
-                                                        @if ($data->status == \App\Models\Disbursement::INIT)	
-														<div class="badge">INIT</div>
+                                                        @if ($data->status == \App\Model\Disbursement::INIT)	
+														<div class="badge badge-secondary">INIT</div>
 														@endif
 													</td>
-													<td><a href="{{route('disbursement.show',$data->id)}}" class="btn btn-secondary">Detail</a></td>
+													<td>
+                                                        <a href="{{route('disbursement.show',$data->id)}}" class="btn btn-info">Detail</a>
+                                                        <a href="{{route('disbursement.sync',$data->id)}}" class="btn btn-warning">Sync</a>
+                                                    </td>
 												</tr>
 												@endforeach                            
 											</tbody>
