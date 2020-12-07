@@ -36,7 +36,7 @@ Route::resource('dashboard', 'DashboardController',
         'edit' => 'dashboard.edit',
     ]
 ]);
-
+Route::get('disbursement/sync/manual', 'DisbursementController@sync_manual')->name('disbursement.sync_manual');
 Route::resource('disbursement', 'DisbursementController',
 [
     'names' => [
@@ -46,5 +46,6 @@ Route::resource('disbursement', 'DisbursementController',
         'edit' => 'disbursement.edit',
     ]
 ]);
+
 
 Route::get('disbursement/sync/{id}', 'DisbursementController@sync')->name('disbursement.sync');

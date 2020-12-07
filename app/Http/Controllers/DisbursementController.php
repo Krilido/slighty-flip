@@ -47,6 +47,7 @@ class DisbursementController extends Controller
             'amount' => 'required',
             'bank_code' => 'required',
             'account_number' => 'required',
+            'remark' => 'required',
         ];
         $msg = [
             'required' => ':attribute tidak boleh kosong',
@@ -196,6 +197,7 @@ class DisbursementController extends Controller
     public function sync_manual()
     {
         Disbursement::sync_all();
+        return redirect()->route('disbursement')->with('sync_success',true);
         
     }
 }

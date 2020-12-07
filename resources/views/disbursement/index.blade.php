@@ -9,7 +9,8 @@ Dashboard Admin
 	<div class="section-header">
 		<h1 class="flex-header">
 			Disbursement
-			<a href="{{route('disbursement.create')}}" class="btn btn-primary active" >Add</a>
+            <a href="{{route('disbursement.create')}}" class="btn btn-primary active" >Add</a>
+            <a href="{{route('disbursement.sync_manual')}}" class="btn btn-primary active" >Sync</a>
 		</h1>
 		<div class="section-header-breadcrumb">
 			<div class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></div>
