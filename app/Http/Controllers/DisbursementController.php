@@ -21,7 +21,7 @@ class DisbursementController extends Controller
     {
         
         $data = Disbursement::orderBy('created_at','DESC'); 
-        $data_send['datas'] = $data->paginate(12);
+        $data_send['datas'] = $data->paginate(10);
         return view('disbursement.index',$data_send);
     }
 
