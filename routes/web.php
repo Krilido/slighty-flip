@@ -20,3 +20,19 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('auth/login');
 });
+
+Route::get('logout', function () {
+    return view('auth/login');
+})->name('logout');
+
+Route::post('do_login', 'Auth\LoginController@login')->name('do_login');
+
+Route::resource('dashboard', 'DashboardController',
+[
+    'names' => [
+        'index' => 'dashboard',
+        'create' => 'dashboard.create',
+        'show' => 'dashboard.show',
+        'edit' => 'dashboard.edit',
+    ]
+]);
