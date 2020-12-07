@@ -12,17 +12,5 @@
         <li>
             <a href="{{route('disbursement')}}" class="nav-link"><i class="fas fa-book"></i><span>Disbursement</span></a>
         </li>
-        <li>
-            <a href="#" class="nav-link"><i class="fas fa-clipboard"></i><span>Kategori Menu</span></a>
-        </li>
-        <li>
-            <a href="#" class="nav-link" href="credits.html"><i class="fas fa-archive"></i></i> <span>Konten</span></a>
-        </li>
-        <li>
-            <a href="#" class="nav-link" href="credits.html"><i class="fas fa-percent"></i> <span>Promo</span></a>
-        </li>
-        <li>
-            <a href="#" class="nav-link" href="credits.html"><i class="fas fa-users"></i> <span>Customer</span></a>
-        </li>
     </ul>
 </aside>

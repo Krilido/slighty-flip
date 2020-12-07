@@ -36,3 +36,13 @@ Route::resource('dashboard', 'DashboardController',
         'edit' => 'dashboard.edit',
     ]
 ]);
+
+Route::resource('disbursement', 'DisbursementController',
+[
+    'names' => [
+        'index' => 'disbursement',
+        'create' => 'disbursement.create',
+        'show' => 'disbursement.show',
+        'edit' => 'disbursement.edit',
+    ]
+]);
