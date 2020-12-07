@@ -46,3 +46,5 @@ Route::resource('disbursement', 'DisbursementController',
         'edit' => 'disbursement.edit',
     ]
 ]);
+
+Route::get('disbursement/sync/{id}', 'DisbursementController@sync')->name('disbursement.sync');

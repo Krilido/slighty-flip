@@ -92,19 +92,16 @@ Dashboard Admin
 @section('js')
 <script>
 	@if (session('create_success'))
-		swal('Berhasil', 'Data berhasil disimpan!', 'success');
+		swal('Success', 'Save Data success!', 'success');
+	@endif
+    @if (session('sync_success'))
+		swal('Success', 'Sync process success!', 'success');
 	@endif
 	@if (session('create_failed'))
-		swal('Gagal', 'Data gagal disimpan!', 'error');
+		swal('Faield', 'Create data Failed!', 'error');
 	@endif
-	@if (session('delete_success'))
-		swal('Berhasil', 'Data berhasil dihapus!', 'success');
-	@endif
-	@if (session('update_success'))
-		swal('Berhasil', 'Data berhasil diubah!', 'success');
-	@endif
-	@if (session('update_failed'))
-		swal('Gagal', 'Data gagal diubah!', 'error');
+    @if (session('sync_failed'))
+		swal('Faield', 'Sync data Failed!', 'error');
 	@endif
 </script>
 @endsection

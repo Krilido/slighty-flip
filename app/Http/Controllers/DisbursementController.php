@@ -70,6 +70,9 @@ class DisbursementController extends Controller
                 DB::commit();
                 try {
                     $return = FlipApi::createRecord($disburs);
+                    if (empty($return)) {
+                        return redirect()->route('disbursement')->with('create_success',true);
+                    }
                     $return = json_decode($return,true);
                     $disburs->id_api = $return["id"];
                     $disburs->status = $return["status"];
@@ -81,7 +84,6 @@ class DisbursementController extends Controller
                     $disburs->save();
                     
                 } catch (\Throwable $th) {
-                    dd($return,$th);
                     Log::info($th);
                 }
                 return redirect()->route('disbursement')->with('create_success',true);
@@ -140,5 +142,60 @@ class DisbursementController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function sync($id)
+    {
+        try {
+            $data = Disbursement::find($id);
+            if (empty($data)) {
+                return redirect()->route('disbursement')->with('sync_failed',true);
+            }
+            if ($data->status == Disbursement::INIT) {
+                $return = FlipApi::createRecord($data);
+                if (empty($return)) {
+                    return redirect()->route('disbursement')->with('create_success',true);
+                }
+                $return = json_decode($return,true);
+                $data->id_api = $return["id"];
+                $data->status = $return["status"];
+                $data->timestamp = $return["timestamp"];
+                $data->beneficiary_name = $return["beneficiary_name"];
+                $data->receipt = $return["receipt"];
+                $data->time_served = $return["time_served"];
+                $data->fee = $return["fee"];
+                $data->save();
+                if ($data) {
+                    return redirect()->route('disbursement')->with('sync_success',true);
+                } else{
+                    return redirect()->route('disbursement')->with('sync_failed',true);
+                }
+            } else{
+                $return = FlipApi::sync_one($data->id_api);
+                if (empty($return)) {
+                    return redirect()->route('disbursement')->with('sync_failed',true);
+                }
+                $return = json_decode($return,true);
+                $data->status = $return["status"];
+                $data->receipt = $return["receipt"];
+                $data->time_served = $return["time_served"];
+                $data->updated_at = Carbon::now();
+                $data->save();
+                if ($data) {
+                    return redirect()->route('disbursement')->with('sync_success',true);
+                } else{
+                    return redirect()->route('disbursement')->with('sync_failed',true);
+                }
+            }
+        } catch (\Throwable $th) {
+            Log::info($th);
+            return redirect()->route('disbursement')->with('sync_failed',true);
+        }
+    }
+
+    public function sync_manual()
+    {
+        Disbursement::sync_all();
+        
     }
 }

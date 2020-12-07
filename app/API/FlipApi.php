@@ -43,5 +43,31 @@ class FlipApi
         return $result;
 
     }
+
+    public static function sync_one($id)
+    {
+        $postfields = [];
+        
+
+        $header = array('Content-Type: application/x-www-form-urlencoded');
+        
+        $url = env("URL_FLIP_API", null);
+        if (empty($url)) {
+            return null;
+        }
+
+        $fa = new FlipApi;
+
+        $url = $url.$fa->get_list.$id;
+        $auth = env("API_KEY", null);
+        if (empty($auth)) {
+            return null;
+        }
+
+        
+        $util = New Utility();
+        $result = $util->sendToExternalFix($postfields,$url,Utility::METHOD_GET,$header,$auth);
+        return $result;
+    }
 }
 
