@@ -210,7 +210,9 @@ class DisbursementController extends Controller
             if (empty($data)) {
                 return redirect()->route('disbursement')->with('sync_failed',true);
             }
-            if ($data->status == Disbursement::INIT) {
+            if ($data->status == Disbursement::SUCCESS) {
+                return redirect()->route('disbursement')->with('sync_success',true);
+            } elseif ($data->status == Disbursement::INIT) {
                 $return = FlipApi::createRecord($data);
                 if (empty($return)) {
                     return redirect()->route('disbursement')->with('create_success',true);
@@ -229,7 +231,7 @@ class DisbursementController extends Controller
                 } else{
                     return redirect()->route('disbursement')->with('sync_failed',true);
                 }
-            } else{
+            } elseif($data->status == Disbursement::PENDING){
                 $return = FlipApi::sync_one($data->id_api);
                 if (empty($return)) {
                     return redirect()->route('disbursement')->with('sync_failed',true);
@@ -259,7 +261,9 @@ class DisbursementController extends Controller
             if (empty($data)) {
                 return response()->json(['code' => 404,'error' => "sync failed",'message' => 'data not found.'],200);
             }
-            if ($data->status == Disbursement::INIT) {
+            if ($data->status == Disbursement::SUCCESS) {
+                return response()->json(['code' => 200,'data' => $data,'message' => 'sync success.'],200);
+            } elseif ($data->status == Disbursement::INIT) {
                 $return = FlipApi::createRecord($data);
                 if (empty($return)) {
                     return response()->json(['code' => 400,'error' => "sync failed",'message' => 'response API null.'],200);

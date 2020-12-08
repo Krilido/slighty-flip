@@ -64,7 +64,6 @@ class syncDataDisbursment implements ShouldQueue
                     
                 }
             } catch (\Throwable $th) {
-                dd($th);
                 Log::info($th);
             }
         }
