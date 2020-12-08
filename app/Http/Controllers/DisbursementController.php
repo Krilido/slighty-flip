@@ -99,6 +99,64 @@ class DisbursementController extends Controller
         }
     }
 
+    public function store_api(Request $request)
+    {
+        $rules = [
+            'amount' => 'required|numeric',
+            'bank_code' => 'required',
+            'account_number' => 'required',
+            'remark' => 'required',
+        ];
+        $msg = [
+            'required' => ':attribute tidak boleh kosong',
+        ];
+        $validator = Validator::make($request->all(), $rules,$msg);
+        if (!$validator->passes()) {
+            return response()->json(['code' => 400,'error' => "error in validation",'message' => $validator->errors()],200);
+        }
+        try {
+            DB::beginTransaction();
+            $disburs                    = new Disbursement;
+            $disburs->amount            = $request->amount;
+            $disburs->bank_code         = $request->bank_code;
+            $disburs->account_number    = $request->account_number;
+            $disburs->remark            = $request->remark;
+            $disburs->status            = Disbursement::INIT;
+            $disburs->created_at        = Carbon::now();
+            $disburs->save();
+
+            if ($disburs) {
+                DB::commit();
+                try {
+                    $return = FlipApi::createRecord($disburs);
+                    if (empty($return)) {
+                        return response()->json(['code' => 200,'data' => $disburs,'message' => 'success with pending sync.'],200);
+                    }
+                    $return = json_decode($return,true);
+                    $disburs->id_api = $return["id"];
+                    $disburs->status = $return["status"];
+                    $disburs->timestamp = $return["timestamp"];
+                    $disburs->beneficiary_name = $return["beneficiary_name"];
+                    $disburs->receipt = $return["receipt"];
+                    $disburs->time_served = $return["time_served"];
+                    $disburs->fee = $return["fee"];
+                    $disburs->save();
+                    
+                } catch (\Throwable $th) {
+                    Log::info($th);
+                }
+                return response()->json(['code' => 200,'data' => $disburs,'message' => 'success create and sync data.'],200);
+            } else{
+                return response()->json(['code' => 400,'error' => "create failed",'message' => 'failed create data.'],200);
+            }
+
+        } catch (\Throwable $th) {
+            Log::info($th);dd($th);
+            DB::rollback();
+            return response()->json(['code' => 400,'error' => "create failed",'message' => 'failed create data.'],200);
+        }
+    }
+
     /**
      * Display the specified resource.
      *
@@ -191,6 +249,55 @@ class DisbursementController extends Controller
         } catch (\Throwable $th) {
             Log::info($th);
             return redirect()->route('disbursement')->with('sync_failed',true);
+        }
+    }
+
+    public function sync_api(Request $request)
+    {
+        try {
+            $data = Disbursement::find($request->id);
+            if (empty($data)) {
+                return response()->json(['code' => 404,'error' => "sync failed",'message' => 'data not found.'],200);
+            }
+            if ($data->status == Disbursement::INIT) {
+                $return = FlipApi::createRecord($data);
+                if (empty($return)) {
+                    return response()->json(['code' => 400,'error' => "sync failed",'message' => 'response API null.'],200);
+                }
+                $return = json_decode($return,true);
+                $data->id_api = $return["id"];
+                $data->status = $return["status"];
+                $data->timestamp = $return["timestamp"];
+                $data->beneficiary_name = $return["beneficiary_name"];
+                $data->receipt = $return["receipt"];
+                $data->time_served = $return["time_served"];
+                $data->fee = $return["fee"];
+                $data->save();
+                if ($data) {
+                    return response()->json(['code' => 200,'data' => $data,'message' => 'sync success.'],200);
+                } else{
+                    return response()->json(['code' => 400,'error' => "sync failed",'message' => 'save data error.'],200);
+                }
+            } else{
+                $return = FlipApi::sync_one($data->id_api);
+                if (empty($return)) {
+                    return response()->json(['code' => 400,'error' => "sync failed",'message' => 'response API null.'],200);
+                }
+                $return = json_decode($return,true);
+                $data->status = $return["status"];
+                $data->receipt = $return["receipt"];
+                $data->time_served = $return["time_served"];
+                $data->updated_at = Carbon::now();
+                $data->save();
+                if ($data) {
+                    return response()->json(['code' => 200,'data' => $data,'message' => 'sync success.'],200);
+                } else{
+                    return response()->json(['code' => 400,'error' => "sync failed",'message' => 'save data error.'],200);
+                }
+            }
+        } catch (\Throwable $th) {
+            Log::info($th);
+            return response()->json(['code' => 400,'error' => "sync failed",'message' => 'save data error, please contact your admin.'],200);
         }
     }
 
