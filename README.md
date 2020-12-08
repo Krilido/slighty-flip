@@ -26,7 +26,7 @@ How to install
     <li>copy this folder to your htdocs folder (if using windows)</li>
     <li>make DB with name "slightly_flip" (because on my env, I'm using this name)</li>
     <li>run command "php artisan migrate" to migrate all your DB on CLI in the root directory place</li>
-    <li>run command "php artisan db:seed --class=UserSeeder" for create admin account on CLI in the root directory place</li>
+    <li>run command "php artisan db:seed" for create admin account and adding some case for disburse data on CLI in the root directory place</li>
     <li>you can login with account email="admin@gmial.com"; passowrd="admin"</li>
     <li>dashboard page only show blank page just for landing page after login</li>
     <li>you can create or do sync or see detail of disbursment on Disbursment page</li>
