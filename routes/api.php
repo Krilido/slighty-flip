@@ -19,4 +19,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('disbursement/sync/{id}', 'DisbursementController@sync_api');
-Route::post('disbursement/create', 'DisbursementController@store_api');
+Route::post('disbursement/create', 'DisbursementController@store_api')->name('disbursement.create');
